@@ -1,0 +1,154 @@
+rules_version = '2';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SOS App for Disabled — Firestore Security Rules v7.0
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// Collections:
+//   users/         — user profiles (written by user, read by responders)
+//   alerts/        — SOS events (written by user, updated by responders)
+//   responders/    — responder profiles + roles (admin-managed)
+//   contacts/      — emergency contacts (user-private)
+//   emergency_history/ — resolved alert archive (read-only)
+//   volunteers/    — volunteer registrations
+//   settings/      — global app configuration (admin-only write)
+//
+// Auth model:
+//   Anonymous users      → SOS users (identified by their userId field)
+//   Email/password users → Responders/Caregivers/Admin (role in responders/{uid})
+// ═══════════════════════════════════════════════════════════════════════════
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ─────────────────────────────────────────────────────
+
+    // Check if the caller is authenticated at all
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // Check if the caller owns this document (their uid matches the userId field)
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    // Check if the caller has a responder record (any role)
+    function isResponder() {
+      return isAuth() &&
+        exists(/databases/$(database)/documents/responders/$(request.auth.uid));
+    }
+
+    // Check if the caller has a specific role
+    function hasRole(role) {
+      return isAuth() &&
+        get(/databases/$(database)/documents/responders/$(request.auth.uid)).data.role == role;
+    }
+
+    // Check if caller is admin
+    function isAdmin() { return hasRole('ADMIN'); }
+
+    // Check if caller is any kind of responder (caregiver, security, volunteer, admin)
+    function isAnyResponder() {
+      return isResponder() &&
+        get(/databases/$(database)/documents/responders/$(request.auth.uid)).data.active == true;
+    }
+
+    // ── users collection ─────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Users can read and write their own profile
+      allow read, write: if isOwner(userId);
+
+      // Responders can read any user profile (for alert context)
+      allow read: if isAnyResponder();
+    }
+
+    // ── alerts collection ────────────────────────────────────────────────────
+    match /alerts/{alertId} {
+      // Any authenticated user can create an alert (SOS dispatch)
+      allow create: if isAuth()
+        && request.resource.data.userId == request.auth.uid;
+
+      // Owner can read their own alerts
+      allow read: if isAuth()
+        && resource.data.userId == request.auth.uid;
+
+      // Responders can read ALL alerts (dashboard)
+      allow read: if isAnyResponder();
+
+      // Only the owner OR a responder can update an alert
+      // Owner updates: status changes from the app (SENT, DELIVERED, CANCELLED)
+      // Responder updates: ACKNOWLEDGED, RESPONDER_ASSIGNED, ON_THE_WAY, RESOLVED, FALSE_ALERT
+      allow update: if isAuth() &&
+        (resource.data.userId == request.auth.uid || isAnyResponder());
+
+      // No one can delete alerts (audit trail)
+      allow delete: if false;
+
+      // Responses subcollection — responders can write
+      match /responses/{responseId} {
+        allow read:   if isAnyResponder() || isOwner(get(/databases/$(database)/documents/alerts/$(alertId)).data.userId);
+        allow create: if isAnyResponder();
+        allow update: if isAnyResponder();
+      }
+    }
+
+    // ── responders collection ────────────────────────────────────────────────
+    match /responders/{responderId} {
+      // Anyone authenticated can read their own responder doc
+      allow read: if isOwner(responderId);
+
+      // Admins can read all responder docs
+      allow read: if isAdmin();
+
+      // Responders can create their own registration
+      allow create: if isOwner(responderId);
+
+      // Only admins can update or delete responder records
+      allow update, delete: if isAdmin();
+    }
+
+    // ── contacts collection ──────────────────────────────────────────────────
+    match /contacts/{contactId} {
+      // Contacts are strictly private — only the owning user
+      allow read, write: if isAuth()
+        && resource.data.userId == request.auth.uid;
+      allow create: if isAuth()
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    // ── emergency_history collection ─────────────────────────────────────────
+    match /emergency_history/{historyId} {
+      // Read-only for owner and responders; written by Cloud Functions only
+      allow read: if isAuth() && (
+        resource.data.userId == request.auth.uid || isAnyResponder()
+      );
+      allow write: if false; // written server-side via Cloud Functions
+    }
+
+    // ── volunteers collection ────────────────────────────────────────────────
+    match /volunteers/{volunteerId} {
+      // Anyone authenticated can register as volunteer
+      allow create: if isOwner(volunteerId);
+
+      // Volunteers can read and update their own record
+      allow read, update: if isOwner(volunteerId);
+
+      // Responders/admins can read all volunteers (for assignment)
+      allow read: if isAnyResponder();
+
+      // Only admins can delete volunteer records
+      allow delete: if isAdmin();
+    }
+
+    // ── settings collection ──────────────────────────────────────────────────
+    match /settings/{settingId} {
+      // Everyone authenticated can read global settings
+      allow read: if isAuth();
+
+      // Only admins can write settings
+      allow write: if isAdmin();
+    }
+
+  }
+}

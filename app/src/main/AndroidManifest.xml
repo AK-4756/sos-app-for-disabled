@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.sosapp.disabled">
+
+    <!-- Core SOS permissions -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Notification permission required on Android 13+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- SMS receive for acknowledgement detection -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <!-- Battery status (no permission needed — public broadcast) -->
+    <!-- Accelerometer (no permission needed) -->
+
+    <application
+        android:name=".SosApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ContactsActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/action_contacts"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".SettingsActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/action_settings"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".AlertHistoryActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/history_title"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <!--
+            Accessibility Service for volume-button SOS detection.
+            • exported="true" is required by Android for all accessibility services.
+            • The BIND_ACCESSIBILITY_SERVICE permission ensures only the system
+              can bind to this service, preventing rogue apps from triggering it.
+        -->
+        <service
+            android:name=".VolumeButtonSosService"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <activity
+            android:name=".DashboardActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/dashboard_title"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ProfileActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/profile_title"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".QrScannerActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/qr_scan_title"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+
+        <activity
+            android:name=".VolunteerActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/volunteer_title"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".AnalyticsActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/analytics_title"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+
+        <!-- SmsAckReceiver: detects reply SMS keywords (YES, OK, HELP, etc.) -->
+        <receiver
+            android:name=".SmsAckReceiver"
+            android:exported="true">
+            <intent-filter android:priority="999">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+
+    </application>
+
+</manifest>

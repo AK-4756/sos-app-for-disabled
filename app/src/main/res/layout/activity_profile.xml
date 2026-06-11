@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/windowBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Profile status banner -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFF3E0">
+            <TextView
+                android:id="@+id/tvProfileStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Complete your profile to enable enhanced SOS"
+                android:textSize="14sp"
+                android:textColor="#E65100"
+                android:gravity="center"
+                android:padding="10dp"
+                android:importantForAccessibility="yes" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- ── Section: Identity ─────────────────────────────────────────── -->
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Personal Information" android:textSize="17sp" android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" android:paddingBottom="8dp" />
+
+        <EditText android:id="@+id/etProfileName"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Full Name *" android:inputType="textPersonName|textCapWords"
+            android:textSize="16sp" android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="10dp" />
+
+        <EditText android:id="@+id/etProfilePhone"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Phone Number *" android:inputType="phone"
+            android:textSize="16sp" android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="10dp" />
+
+        <EditText android:id="@+id/etProfileEmail"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Email (optional)" android:inputType="textEmailAddress"
+            android:textSize="16sp" android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="10dp" />
+
+        <EditText android:id="@+id/etProfileInstitution"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Institution / College" android:inputType="textCapWords"
+            android:textSize="16sp" android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="10dp" />
+
+        <EditText android:id="@+id/etProfileRoll"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Roll / Employee ID"
+            android:textSize="16sp" android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="16dp" />
+
+        <!-- ── Section: Disability Type ────────────────────────────────── -->
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Disability Type" android:textSize="17sp" android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" android:paddingBottom="8dp" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="10dp" app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/surfaceColor">
+            <RadioGroup android:id="@+id/rgDisabilityType"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:padding="12dp">
+                <RadioButton android:id="@+id/rbDisNone" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:text="None / Not disclosed"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:checked="true" android:gravity="center_vertical" />
+                <RadioButton android:id="@+id/rbDisVision" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:text="Vision Impaired"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:gravity="center_vertical" />
+                <RadioButton android:id="@+id/rbDisHearing" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:text="Hearing Impaired"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:gravity="center_vertical" />
+                <RadioButton android:id="@+id/rbDisMotor" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:text="Motor / Physical Impaired"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:gravity="center_vertical" />
+                <RadioButton android:id="@+id/rbDisCognitive" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:text="Cognitive / Neurological"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:gravity="center_vertical" />
+            </RadioGroup>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ── Section: Preferred SOS Trigger ──────────────────────────── -->
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Preferred SOS Trigger" android:textSize="17sp" android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" android:paddingBottom="8dp" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="10dp" app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/surfaceColor">
+            <RadioGroup android:id="@+id/rgPreferredTrigger"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:padding="12dp">
+                <RadioButton android:id="@+id/rbTrigButton" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:text="Button tap (default)"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:checked="true" android:gravity="center_vertical" />
+                <RadioButton android:id="@+id/rbTrigVoice" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:text="Voice command"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:gravity="center_vertical" />
+                <RadioButton android:id="@+id/rbTrigShake" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:text="Phone shake"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:gravity="center_vertical" />
+                <RadioButton android:id="@+id/rbTrigVolume" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:text="Volume button (×4)"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:gravity="center_vertical" />
+            </RadioGroup>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ── Section: Language ──────────────────────────────────────── -->
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Preferred Language" android:textSize="17sp" android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" android:paddingBottom="8dp" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="10dp" app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/surfaceColor">
+            <RadioGroup android:id="@+id/rgProfileLanguage"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:orientation="horizontal">
+                <RadioButton android:id="@+id/rbProfileLangEn" android:layout_width="0dp"
+                    android:layout_height="48dp" android:layout_weight="1"
+                    android:text="English" android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:checked="true" android:gravity="center_vertical" />
+                <RadioButton android:id="@+id/rbProfileLangHi" android:layout_width="0dp"
+                    android:layout_height="48dp" android:layout_weight="1"
+                    android:text="हिन्दी" android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:gravity="center_vertical" />
+            </RadioGroup>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ── Section: Accessibility Preferences ───────────────────── -->
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Accessibility Preferences" android:textSize="17sp" android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" android:paddingBottom="8dp" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="10dp" app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/surfaceColor">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:orientation="vertical">
+                <CheckBox android:id="@+id/cbLargeText" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:text="Large text mode"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:gravity="center_vertical" />
+                <CheckBox android:id="@+id/cbTts" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:text="Enable voice announcements"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:checked="true" android:gravity="center_vertical" />
+                <CheckBox android:id="@+id/cbVibration" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:text="Enhanced vibration"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:gravity="center_vertical" />
+                <CheckBox android:id="@+id/cbSilentDefault" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:text="Default to silent SOS"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:gravity="center_vertical" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ── Section: Medical Information ─────────────────────────── -->
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Medical Information" android:textSize="17sp" android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" android:paddingBottom="4dp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Shared with responders only when you allow it"
+            android:textSize="12sp" android:textColor="?android:attr/textColorSecondary" android:paddingBottom="8dp" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="10dp" app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/surfaceColor">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:padding="16dp" android:orientation="vertical">
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Blood Group" android:textSize="14sp" android:textColor="?android:attr/textColorSecondary"
+                    android:paddingBottom="4dp" />
+
+                <Spinner android:id="@+id/spinnerBloodGroup"
+                    android:layout_width="match_parent" android:layout_height="48dp"
+                    android:layout_marginBottom="12dp" />
+
+                <EditText android:id="@+id/etAllergies"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:hint="Allergies" android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:layout_marginBottom="10dp" />
+
+                <EditText android:id="@+id/etMedications"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:hint="Current medications" android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:layout_marginBottom="10dp" />
+
+                <EditText android:id="@+id/etConditions"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:hint="Medical conditions" android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:layout_marginBottom="10dp" />
+
+                <EditText android:id="@+id/etDoctorName"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:hint="Doctor name" android:inputType="textPersonName|textCapWords"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:layout_marginBottom="10dp" />
+
+                <EditText android:id="@+id/etDoctorPhone"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:hint="Doctor phone" android:inputType="phone"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:layout_marginBottom="10dp" />
+
+                <EditText android:id="@+id/etHospitalName"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:hint="Nearest hospital" android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:layout_marginBottom="10dp" />
+
+                <EditText android:id="@+id/etEmergencyNotes"
+                    android:layout_width="match_parent" android:layout_height="100dp"
+                    android:hint="Emergency notes"
+                    android:inputType="textMultiLine" android:gravity="top"
+                    android:textSize="15sp" android:textColor="?android:attr/textColorPrimary"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Attach summary to SOS"
+                        android:textSize="14sp" android:textColor="?android:attr/textColorPrimary" />
+                    <CheckBox android:id="@+id/cbShareMedical"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:checked="true" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Save button -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnSaveProfile"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Save Profile"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="?attr/colorPrimary"
+            android:contentDescription="Save your profile" />
+
+        <View android:layout_width="match_parent" android:layout_height="24dp" />
+
+    </LinearLayout>
+</ScrollView>

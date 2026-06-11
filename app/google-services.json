@@ -1,0 +1,48 @@
+{
+  "_comment": "REPLACE THIS FILE with your real google-services.json from Firebase Console.",
+  "_instructions": [
+    "1. Go to https://console.firebase.google.com",
+    "2. Create a new project (or open existing)",
+    "3. Click the Android icon to add an Android app",
+    "4. Package name: com.sosapp.disabled",
+    "5. Download google-services.json",
+    "6. Place it here: /app/google-services.json (replacing this file)",
+    "7. In Firebase Console → Firestore Database → Create database (Native mode)",
+    "8. In Firebase Console → Authentication → Sign-in method → Anonymous → Enable",
+    "9. Sync Gradle in Android Studio"
+  ],
+  "_firestore_rules": [
+    "rules_version = '2';",
+    "service cloud.firestore {",
+    "  match /databases/{database}/documents {",
+    "    match /alerts/{alertId} {",
+    "      allow read: if true;",
+    "      allow write: if request.auth != null || true;",
+    "    }",
+    "    match /users/{userId} {",
+    "      allow read, write: if true;",
+    "    }",
+    "  }",
+    "}"
+  ],
+  "project_info": {
+    "project_number": "YOUR_PROJECT_NUMBER",
+    "project_id": "YOUR_PROJECT_ID",
+    "storage_bucket": "YOUR_PROJECT_ID.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "YOUR_APP_ID",
+        "android_client_info": {
+          "package_name": "com.sosapp.disabled"
+        }
+      },
+      "api_key": [{ "current_key": "YOUR_API_KEY" }],
+      "services": {
+        "appinvite_service": { "other_platform_oauth_client": [] }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

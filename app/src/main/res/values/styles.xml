@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="surfaceColor" format="color" />
+    <attr name="strokeColor"  format="color" />
+
+    <!-- Base App Theme (Defaulting to Light for consistency) -->
+    <style name="AppTheme" parent="AppTheme.Light" />
+
+    <!-- Dark Theme (Using standard AppCompat) -->
+    <style name="AppTheme.Dark" parent="Theme.AppCompat">
+        <item name="colorPrimary">#1A1A2E</item>
+        <item name="colorPrimaryDark">#0D0D1F</item>
+        <item name="colorAccent">@color/sos_red</item>
+
+        <item name="android:windowBackground">@color/dark_background</item>
+        <item name="android:textColorPrimary">@color/dark_text_primary</item>
+        <item name="android:textColorSecondary">@color/dark_text_secondary</item>
+        <item name="android:textColorHint">@color/dark_hint</item>
+        <item name="android:divider">@color/dark_stroke</item>
+        <item name="surfaceColor">@color/dark_surface</item>
+        <item name="strokeColor">@color/dark_stroke</item>
+    </style>
+
+    <!-- Light Theme (Light with Dark Action Bar) -->
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#1A1A2E</item>
+        <item name="colorPrimaryDark">#0D0D1F</item>
+        <item name="colorAccent">@color/sos_red</item>
+
+        <item name="android:windowBackground">@color/light_background</item>
+        <item name="android:textColorPrimary">@color/light_text_primary</item>
+        <item name="android:textColorSecondary">@color/light_text_secondary</item>
+        <item name="android:textColorHint">@color/light_hint</item>
+        <item name="android:divider">@color/light_stroke</item>
+        <item name="surfaceColor">@color/light_surface</item>
+        <item name="strokeColor">@color/light_stroke</item>
+    </style>
+</resources>

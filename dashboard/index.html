@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOS App — Responder Dashboard</title>
+
+  <!-- Firebase SDK (v9 compat for simple script tags) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <style>
+    /* ── Reset + base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #0f1117;
+      --surface:  #1a1d27;
+      --border:   #2a2d3a;
+      --accent:   #e53935;
+      --green:    #43a047;
+      --amber:    #fb8c00;
+      --blue:     #1e88e5;
+      --purple:   #8e24aa;
+      --text:     #e8eaf0;
+      --muted:    #8b8fa8;
+      --radius:   12px;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header .sos-badge {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 1px;
+    }
+    header h1 { font-size: 20px; font-weight: 600; }
+    header .subtitle { color: var(--muted); font-size: 13px; margin-left: auto; }
+    #connStatus { font-size: 12px; padding: 3px 8px; border-radius: 20px; }
+    #connStatus.ok  { background:#1b5e20; color:#a5d6a7; }
+    #connStatus.err { background:#b71c1c; color:#ef9a9a; }
+
+    /* ── Layout ──────────────────────────────────────────────────────────────── */
+    .page { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+    /* ── Stats bar ────────────────────────────────────────────────────────────── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-card .num { font-size: 32px; font-weight: 700; }
+    .stat-card .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .stat-card.red    .num { color: var(--accent); }
+    .stat-card.green  .num { color: var(--green); }
+    .stat-card.amber  .num { color: var(--amber); }
+    .stat-card.purple .num { color: var(--purple); }
+
+    /* ── Filter bar ───────────────────────────────────────────────────────────── */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background .15s;
+    }
+    .filter-btn.active, .filter-btn:hover { background: var(--accent); border-color: var(--accent); }
+
+    /* ── Alert cards ──────────────────────────────────────────────────────────── */
+    #alertList { display: flex; flex-direction: column; gap: 12px; }
+    .alert-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      border-left: 4px solid var(--accent);
+      transition: border-color .2s;
+    }
+    .alert-card.ACKNOWLEDGED { border-left-color: var(--amber); }
+    .alert-card.ON_THE_WAY   { border-left-color: var(--blue); }
+    .alert-card.RESOLVED      { border-left-color: var(--green); opacity: .65; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .status-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+    .badge-CREATED      { background:#4a1212; color:#ef9a9a; }
+    .badge-SENT         { background:#1a237e; color:#90caf9; }
+    .badge-DELIVERED    { background:#1b3a1b; color:#a5d6a7; }
+    .badge-ACKNOWLEDGED { background:#4a3000; color:#ffe082; }
+    .badge-ON_THE_WAY   { background:#0d2a4a; color:#81d4fa; }
+    .badge-RESOLVED     { background:#1b3a1b; color:#a5d6a7; }
+    .badge-FAILED       { background:#2a0000; color:#ef9a9a; }
+    .badge-CANCELLED    { background:#1a1a1a; color:#9e9e9e; }
+
+    .card-id   { color: var(--muted); font-size: 12px; font-family: monospace; }
+    .card-time { color: var(--muted); font-size: 12px; margin-left: auto; }
+
+    .card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    @media(max-width:600px) { .card-body { grid-template-columns: 1fr; } }
+    .info-row { font-size: 13px; color: var(--muted); }
+    .info-row span { color: var(--text); font-weight: 500; }
+    .info-row a { color: #64b5f6; text-decoration: none; }
+    .info-row a:hover { text-decoration: underline; }
+
+    /* ── Action buttons ────────────────────────────────────────────────────────── */
+    .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      padding: 7px 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn:disabled { opacity: .35; cursor: default; }
+    .btn-ack      { background: var(--amber); color: #000; }
+    .btn-way      { background: var(--blue);  color: #fff; }
+    .btn-resolve  { background: var(--green); color: #fff; }
+    .btn-map      { background: #37474f;       color: #fff; }
+
+    /* ── Empty state ─────────────────────────────────────────────────────────── */
+    .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty .icon { font-size: 48px; margin-bottom: 12px; }
+
+    /* ── Config panel ──────────────────────────────────────────────────────── */
+    .config-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .config-panel h2 { font-size: 15px; margin-bottom: 12px; color: var(--muted); }
+    .config-panel input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .config-panel button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .toast {
+      position: fixed; bottom: 20px; right: 20px;
+      background: #263238; color: #fff;
+      padding: 10px 18px; border-radius: 8px;
+      font-size: 13px; opacity: 0;
+      transition: opacity .3s;
+      z-index: 999;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="sos-badge">SOS</div>
+  <h1>Responder Dashboard</h1>
+  <span id="connStatus" class="err">Connecting…</span>
+  <span class="subtitle">Real-time alert management</span>
+</header>
+
+<div class="page">
+
+  <!-- Firebase config panel (shown until configured) -->
+  <div class="config-panel" id="configPanel">
+    <h2>⚙️ Firebase Configuration — paste your project config below</h2>
+    <input id="cfgApiKey"     type="text" placeholder="apiKey" />
+    <input id="cfgProjectId"  type="text" placeholder="projectId" />
+    <input id="cfgAppId"      type="text" placeholder="appId" />
+    <button onclick="initFirebase()">Connect to Firebase</button>
+    <p style="margin-top:8px;font-size:12px;color:#888">
+      Find these values in Firebase Console → Project Settings → Your apps → Web app config.
+    </p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card red">
+      <div class="num" id="statActive">—</div>
+      <div class="lbl">Active Alerts</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="num" id="statAck">—</div>
+      <div class="lbl">Acknowledged</div>
+    </div>
+    <div class="stat-card green">
+      <div class="num" id="statResolved">—</div>
+      <div class="lbl">Resolved Today</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="num" id="statTotal">—</div>
+      <div class="lbl">Total (48h)</div>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="setFilter('ALL', this)">All</button>
+    <button class="filter-btn" onclick="setFilter('CREATED', this)">Created</button>
+    <button class="filter-btn" onclick="setFilter('SENT', this)">Sent</button>
+    <button class="filter-btn" onclick="setFilter('ACKNOWLEDGED', this)">Acknowledged</button>
+    <button class="filter-btn" onclick="setFilter('ON_THE_WAY', this)">On the Way</button>
+    <button class="filter-btn" onclick="setFilter('RESOLVED', this)">Resolved</button>
+  </div>
+
+  <!-- Alert list -->
+  <div id="alertList">
+    <div class="empty">
+      <div class="icon">📡</div>
+      <p>Connect to Firebase to see live alerts</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ────────────────────────────────────────────────────────────────────
+let db = null;
+let allAlerts = [];
+let currentFilter = 'ALL';
+let unsubscribe = null;
+
+// ── Firebase init ─────────────────────────────────────────────────────────────
+function initFirebase() {
+  const apiKey    = document.getElementById('cfgApiKey').value.trim();
+  const projectId = document.getElementById('cfgProjectId').value.trim();
+  const appId     = document.getElementById('cfgAppId').value.trim();
+
+  if (!apiKey || !projectId || !appId) {
+    showToast('Please fill all three fields');
+    return;
+  }
+
+  try {
+    // Prevent double-init
+    if (firebase.apps.length) firebase.app().delete();
+    firebase.initializeApp({
+      apiKey,
+      authDomain: projectId + '.firebaseapp.com',
+      projectId,
+      appId
+    });
+    db = firebase.firestore();
+    document.getElementById('configPanel').style.display = 'none';
+    document.getElementById('connStatus').textContent = 'Connected';
+    document.getElementById('connStatus').className = 'ok';
+    startListening();
+    showToast('Connected to Firebase ✓');
+  } catch(e) {
+    showToast('Firebase error: ' + e.message);
+    console.error(e);
+  }
+}
+
+// ── Real-time listener ────────────────────────────────────────────────────────
+function startListening() {
+  if (unsubscribe) unsubscribe();
+
+  const cutoff = Date.now() - 48 * 3600 * 1000; // last 48 hours
+
+  unsubscribe = db.collection('alerts')
+    .where('timestamp', '>=', cutoff)
+    .orderBy('timestamp', 'desc')
+    .onSnapshot(snapshot => {
+      allAlerts = [];
+      snapshot.forEach(doc => {
+        allAlerts.push({ id: doc.id, ...doc.data() });
+      });
+      updateStats();
+      renderAlerts();
+    }, err => {
+      document.getElementById('connStatus').textContent = 'Error';
+      document.getElementById('connStatus').className = 'err';
+      console.error(err);
+    });
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function updateStats() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  let active = 0, ack = 0, resolved = 0;
+  allAlerts.forEach(a => {
+    const s = a.status || '';
+    if (['CREATED','SENT','DELIVERED'].includes(s)) active++;
+    if (s === 'ACKNOWLEDGED' || s === 'ON_THE_WAY') ack++;
+    if (s === 'RESOLVED' && a.timestamp >= today.getTime()) resolved++;
+  });
+  document.getElementById('statActive').textContent   = active;
+  document.getElementById('statAck').textContent      = ack;
+  document.getElementById('statResolved').textContent = resolved;
+  document.getElementById('statTotal').textContent    = allAlerts.length;
+}
+
+// ── Filter ────────────────────────────────────────────────────────────────────
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAlerts();
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderAlerts() {
+  const list = document.getElementById('alertList');
+  const filtered = currentFilter === 'ALL'
+    ? allAlerts
+    : allAlerts.filter(a => a.status === currentFilter);
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="icon">✅</div><p>No alerts match this filter</p></div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(a => buildCard(a)).join('');
+}
+
+function buildCard(a) {
+  const ts  = a.timestamp ? new Date(a.timestamp).toLocaleString() : '—';
+  const lat = a.latitude  != null ? a.latitude.toFixed(5)  : null;
+  const lng = a.longitude != null ? a.longitude.toFixed(5) : null;
+  const mapUrl = lat && lng
+    ? `https://maps.google.com/?q=${lat},${lng}`
+    : null;
+  const locLabel = a.locationLabel || (mapUrl ? 'Live Location' : 'Unavailable');
+  const battery  = a.battery >= 0 ? a.battery + '%' : '—';
+  const silent   = a.silentMode ? '🔕 Silent' : '🔊 Normal';
+  const status   = a.status || 'CREATED';
+  const isActive = !['RESOLVED','CANCELLED','FAILED'].includes(status);
+
+  return `
+  <div class="alert-card ${status}" id="card-${a.id}">
+    <div class="card-header">
+      <span class="status-badge badge-${status}">${statusLabel(status)}</span>
+      <span class="card-id">${a.id.substring(0,10)}…</span>
+      <span class="card-time">${ts}</span>
+    </div>
+    <div class="card-body">
+      <div class="info-row">Trigger: <span>${a.triggerType || '—'}</span></div>
+      <div class="info-row">Contacts: <span>${a.contactsNotified || 0}</span></div>
+      <div class="info-row">Location: <span>${locLabel}</span>
+        ${a.locationAccuracyM > 0 ? `<span style="color:#888;font-size:11px"> ±${Math.round(a.locationAccuracyM)}m</span>` : ''}
+        ${mapUrl ? `<a href="${mapUrl}" target="_blank"> 🗺 Open Map</a>` : ''}</div>
+      <div class="info-row">Battery: <span>${battery}</span></div>
+      <div class="info-row">Delivered: <span>${a.contactsDelivered || 0} / ${a.contactsNotified || 0}</span></div>
+      <div class="info-row">Mode: <span>${silent}</span></div>
+      <div class="info-row">User: <span>${(a.userId||'').substring(0,16)}…</span></div>
+    </div>
+    <div class="card-actions">
+      ${isActive && status !== 'ACKNOWLEDGED' && status !== 'ON_THE_WAY'
+        ? `<button class="btn btn-ack" onclick="updateStatus('${a.id}','ACKNOWLEDGED')">✓ Acknowledge</button>` : ''}
+      ${isActive && status === 'ACKNOWLEDGED'
+        ? `<button class="btn btn-way" onclick="updateStatus('${a.id}','ON_THE_WAY')">🚗 On the Way</button>` : ''}
+      ${isActive
+        ? `<button class="btn btn-resolve" onclick="updateStatus('${a.id}','RESOLVED')">✅ Resolve</button>` : ''}
+      ${mapUrl
+        ? `<button class="btn btn-map" onclick="window.open('${mapUrl}','_blank')">🗺 Map</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function statusLabel(s) {
+  const map = {
+    CREATED:'Created', SENT:'Sent', DELIVERED:'Delivered',
+    ACKNOWLEDGED:'Acknowledged', ON_THE_WAY:'On the Way',
+    RESOLVED:'Resolved', FAILED:'Failed', CANCELLED:'Cancelled'
+  };
+  return map[s] || s;
+}
+
+// ── Status update ──────────────────────────────────────────────────────────────
+async function updateStatus(docId, newStatus) {
+  if (!db) return;
+  try {
+    await db.collection('alerts').doc(docId).update({
+      status: newStatus,
+      lastUpdated: Date.now(),
+      updatedBy: 'Dashboard'
+    });
+    showToast('Status updated → ' + statusLabel(newStatus));
+  } catch(e) {
+    showToast('Update failed: ' + e.message);
+    console.error(e);
+  }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Auto-connect from localStorage ────────────────────────────────────────────
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('sos_firebase_config');
+  if (saved) {
+    try {
+      const cfg = JSON.parse(saved);
+      document.getElementById('cfgApiKey').value    = cfg.apiKey    || '';
+      document.getElementById('cfgProjectId').value = cfg.projectId || '';
+      document.getElementById('cfgAppId').value     = cfg.appId     || '';
+    } catch(e) {}
+  }
+});
+
+// Save config on connect
+const _origInit = initFirebase;
+initFirebase = function() {
+  const cfg = {
+    apiKey:    document.getElementById('cfgApiKey').value.trim(),
+    projectId: document.getElementById('cfgProjectId').value.trim(),
+    appId:     document.getElementById('cfgAppId').value.trim()
+  };
+  localStorage.setItem('sos_firebase_config', JSON.stringify(cfg));
+  _origInit();
+};
+</script>
+</body>
+</html>

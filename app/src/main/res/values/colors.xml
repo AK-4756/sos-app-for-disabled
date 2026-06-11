@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Standard Theme Colors -->
+    <color name="colorPrimary">#1A1A2E</color>
+    <color name="colorPrimaryDark">#0D0D1F</color>
+    <color name="colorAccent">#FF0000</color>
+
+    <!-- Core SOS Colors -->
+    <color name="sos_red">#FF0000</color>
+    <color name="sos_red_dark">#CC0000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="ic_launcher_background">#FFFFFF</color>
+
+    <!-- Dark Theme Colors -->
+    <color name="dark_background">#121212</color>
+    <color name="dark_surface">#1E1E1E</color>
+    <color name="dark_stroke">#333333</color>
+    <color name="dark_text_primary">#FFFFFF</color>
+    <color name="dark_text_secondary">#B0B0B0</color>
+    <color name="dark_hint">#888888</color>
+    <color name="dark_spinner_bg">#2A2A4A</color>
+
+    <!-- Light Theme Colors -->
+    <color name="light_background">#F5F5F5</color>
+    <color name="light_surface">#FFFFFF</color>
+    <color name="light_stroke">#E0E0E0</color>
+    <color name="light_text_primary">#212121</color>
+    <color name="light_text_secondary">#757575</color>
+    <color name="light_hint">#9E9E9E</color>
+    <color name="light_spinner_bg">#E0E0E0</color>
+</resources>
